@@ -134,19 +134,6 @@ func (t Type) String() string {
 	return string(t)
 }
 
-const (
-	TypeContract        Type = "contract"
-	TypeCounty          Type = "county" // TypeCounty refers to a county
-	TypeEntity          Type = "entity"
-	TypeEvent           Type = "event"
-	TypeInvoiceSchedule Type = "invoice_schedule"
-	TypeRegion          Type = "region" // TypeRegion refers to a physical region
-	TypePayment         Type = "payment"
-	TypeProject         Type = "project"
-	TypeReceivable      Type = "receivable"
-	TypeUser            Type = "user"
-)
-
 func First(ids ...ID) ID {
 	for _, id := range ids {
 		if id != "" {

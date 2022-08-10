@@ -7,6 +7,12 @@ import (
 	"github.com/tj/assert"
 )
 
+const (
+	TypeEntity  Type = "entity"
+	TypeEvent   Type = "event"
+	TypeProject Type = "project"
+)
+
 func TestPartString(t *testing.T) {
 	id := "abc"
 	idSub := "def"
