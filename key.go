@@ -1,9 +1,26 @@
 package frn
 
-const (
-	sep       = ":"
-	namespace = "fm"
-)
+const sep = ":"
+
+var defaultNamespace = NewNamespace("fm")
+
+type Namespace string
+
+func NewNamespace(s string) Namespace {
+	return Namespace(s)
+}
+
+func (n Namespace) String() string {
+	return string(n)
+}
+
+func (n Namespace) New(s Service, t Type, id string) ID {
+	return ID(n.String() + sep + s.String() + sep + t.String() + sep + id)
+}
+
+func (n Namespace) NewWithChild(s Service, t Type, id string, st Type, idSub string) ID {
+	return ID(n.String() + sep + s.String() + sep + t.String() + sep + id + sep + st.String() + sep + idSub)
+}
 
 type ID string
 
@@ -140,11 +157,11 @@ func First(ids ...ID) ID {
 }
 
 func New(s Service, t Type, id string) ID {
-	return ID(namespace + sep + s.String() + sep + t.String() + sep + id)
+	return defaultNamespace.New(s, t, id)
 }
 
 func NewSubType(s Service, t Type, id string, st Type, idSub string) ID {
-	return ID(namespace + sep + s.String() + sep + t.String() + sep + id + sep + st.String() + sep + idSub)
+	return defaultNamespace.NewWithChild(s, t, id, st, idSub)
 }
 
 func Ptr(id ID) *ID {

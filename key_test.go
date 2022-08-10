@@ -19,7 +19,7 @@ func TestPartString(t *testing.T) {
 		"0": {
 			Key:    New(ServiceCRM, TypeEntity, id),
 			Index:  0,
-			Want:   namespace,
+			Want:   "fm",
 			WantOk: true,
 		},
 		"1": {
