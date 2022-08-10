@@ -2,12 +2,15 @@ package frn
 
 const sep = ":"
 
-var defaultNamespace = NewNamespace("fm")
+var defaultNamespace = NewNamespace("")
 
 type Namespace string
 
-func NewNamespace(s string) Namespace {
-	return Namespace(s)
+func NewNamespace(env string) Namespace {
+	if env == "" || env == "prd" {
+		return "fm"
+	}
+	return Namespace(env)
 }
 
 func (n Namespace) String() string {
