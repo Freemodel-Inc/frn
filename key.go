@@ -1,8 +1,16 @@
 package frn
 
+import "github.com/segmentio/ksuid"
+
 const sep = ":"
 
 var defaultNamespace = NewNamespace("")
+
+type IDFactoryFunc func() ID
+
+type IDFactory interface {
+	NewID() ID
+}
 
 type Namespace string
 
@@ -11,6 +19,12 @@ func NewNamespace(env string) Namespace {
 		return "fm"
 	}
 	return Namespace(env)
+}
+
+func (n Namespace) IDFactory(s Service, t Type) IDFactoryFunc {
+	return func() ID {
+		return ID(n.String() + sep + s.String() + sep + t.String() + sep + ksuid.New().String())
+	}
 }
 
 func (n Namespace) String() string {
