@@ -1,46 +1,53 @@
 package frn
 
-import "github.com/segmentio/ksuid"
+import (
+	"github.com/segmentio/ksuid"
+	"strings"
+)
 
 const sep = ":"
 
-var defaultNamespace = NewNamespace("")
-
-type IDFactoryFunc func() ID
+type IDFactoryFunc func(v string) ID
 
 func (fn IDFactoryFunc) NewID() ID {
-	return fn()
+	return fn(ksuid.New().String())
+}
+
+func (fn IDFactoryFunc) WithValue(v string) ID {
+	return fn(v)
 }
 
 type IDFactory interface {
 	NewID() ID
+	WithValue(v string) ID
 }
 
+// Namespace consists of prefix plus service e.g. frm:crm
 type Namespace string
 
-func NewNamespace(env string) Namespace {
+func NewNamespace(env string, s Service) Namespace {
 	if env == "" || env == "prd" {
-		return "fm"
+		env = "fm"
 	}
-	return Namespace(env)
+	return Namespace(env + sep + s.String())
 }
 
-func (n Namespace) IDFactory(s Service, t Type) IDFactoryFunc {
-	return func() ID {
-		return ID(n.String() + sep + s.String() + sep + t.String() + sep + ksuid.New().String())
+func (n Namespace) IDFactory(t Type) IDFactoryFunc {
+	return func(v string) ID {
+		return ID(n.String() + sep + t.String() + sep + v)
 	}
+}
+
+func (n Namespace) New(t Type, id string) ID {
+	return ID(n.String() + sep + t.String() + sep + id)
+}
+
+func (n Namespace) NewWithChild(t Type, id string, st Type, idSub string) ID {
+	return ID(n.String() + sep + t.String() + sep + id + sep + st.String() + sep + idSub)
 }
 
 func (n Namespace) String() string {
 	return string(n)
-}
-
-func (n Namespace) New(s Service, t Type, id string) ID {
-	return ID(n.String() + sep + s.String() + sep + t.String() + sep + id)
-}
-
-func (n Namespace) NewWithChild(s Service, t Type, id string, st Type, idSub string) ID {
-	return ID(n.String() + sep + s.String() + sep + t.String() + sep + id + sep + st.String() + sep + idSub)
 }
 
 type ID string
@@ -87,7 +94,7 @@ func (id ID) Child() ID {
 		return ""
 	}
 
-	return New(id.Service(), Type(st), si)
+	return id.Namespace().New(Type(st), si)
 }
 
 // ChildPrefix returns prefix all children of parent must begin with
@@ -103,7 +110,7 @@ func (id ID) HasChild() bool {
 	return ok
 }
 
-func (id ID) ID() string {
+func (id ID) Value() string {
 	s, _ := id.partString(3)
 	return s
 }
@@ -112,8 +119,30 @@ func (id ID) IsEmpty() bool {
 	return id == ""
 }
 
+func (id ID) IsPresent() bool {
+	return !id.IsEmpty()
+}
+
+func (id ID) Namespace() Namespace {
+	s := id.String()
+	a := strings.Index(s, sep)
+	if a == -1 {
+		return ""
+	}
+
+	b := strings.Index(s[a+1:], sep)
+	if b == -1 {
+		return ""
+	}
+
+	return Namespace(id[:a+b+1])
+}
+
 func (id ID) Parent() ID {
-	return New(id.Service(), id.Type(), id.ID())
+	if id.HasChild() {
+		return id.Namespace().New(id.Type(), id.Value())
+	}
+	return id
 }
 
 func (id ID) Service() Service {
@@ -126,7 +155,7 @@ func (id ID) String() string {
 }
 
 func (id ID) Sub(st Type, idSub string) ID {
-	return NewSubType(id.Service(), id.Type(), id.ID(), st, idSub)
+	return ID(id.String() + sep + st.String() + sep + idSub)
 }
 
 func (id ID) Type() Type {
@@ -135,7 +164,7 @@ func (id ID) Type() Type {
 }
 
 func (id ID) WithChild(child ID) ID {
-	return id.Sub(child.Type(), child.ID())
+	return id.Sub(child.Type(), child.Value())
 }
 
 type Service string
@@ -162,14 +191,6 @@ func First(ids ...ID) ID {
 		}
 	}
 	return ""
-}
-
-func New(s Service, t Type, id string) ID {
-	return defaultNamespace.New(s, t, id)
-}
-
-func NewSubType(s Service, t Type, id string, st Type, idSub string) ID {
-	return defaultNamespace.NewWithChild(s, t, id, st, idSub)
 }
 
 func Ptr(id ID) *ID {

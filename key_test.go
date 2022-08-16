@@ -14,8 +14,11 @@ const (
 )
 
 func TestPartString(t *testing.T) {
-	id := "abc"
-	idSub := "def"
+	var (
+		id    = "abc"
+		idSub = "def"
+		ns    = NewNamespace("", ServiceCRM)
+	)
 	testCases := map[string]struct {
 		Key    ID
 		Index  int
@@ -23,48 +26,48 @@ func TestPartString(t *testing.T) {
 		WantOk bool
 	}{
 		"0": {
-			Key:    New(ServiceCRM, TypeEntity, id),
+			Key:    ns.New(TypeEntity, id),
 			Index:  0,
 			Want:   "fm",
 			WantOk: true,
 		},
 		"1": {
-			Key:    New(ServiceCRM, TypeEntity, id),
+			Key:    ns.New(TypeEntity, id),
 			Index:  1,
 			Want:   ServiceCRM.String(),
 			WantOk: true,
 		},
 		"2": {
-			Key:    New(ServiceCRM, TypeEntity, id),
+			Key:    ns.New(TypeEntity, id),
 			Index:  2,
 			Want:   TypeEntity.String(),
 			WantOk: true,
 		},
 		"3": {
-			Key:    New(ServiceCRM, TypeEntity, id),
+			Key:    ns.New(TypeEntity, id),
 			Index:  3,
 			Want:   id,
 			WantOk: true,
 		},
 		"4": {
-			Key:    New(ServiceCRM, TypeEntity, id),
+			Key:    ns.New(TypeEntity, id),
 			Index:  4,
 			WantOk: false,
 		},
 		"4 sub": {
-			Key:    NewSubType(ServiceCRM, TypeProject, id, TypeEvent, idSub),
+			Key:    ns.NewWithChild(TypeProject, id, TypeEvent, idSub),
 			Index:  4,
 			Want:   TypeEvent.String(),
 			WantOk: true,
 		},
 		"5 sub": {
-			Key:    NewSubType(ServiceCRM, TypeProject, id, TypeEvent, idSub),
+			Key:    ns.NewWithChild(TypeProject, id, TypeEvent, idSub),
 			Index:  5,
 			Want:   idSub,
 			WantOk: true,
 		},
 		"6 sub": {
-			Key:    NewSubType(ServiceCRM, TypeProject, id, TypeEvent, idSub),
+			Key:    ns.NewWithChild(TypeProject, id, TypeEvent, idSub),
 			Index:  6,
 			WantOk: false,
 		},
@@ -83,8 +86,9 @@ func TestID_Sub(t *testing.T) {
 	var (
 		id    = ksuid.New().String()
 		idSub = ksuid.New().String()
-		got   = New(ServiceCRM, TypeEntity, id).Sub(TypeEvent, idSub)
-		want  = NewSubType(ServiceCRM, TypeEntity, id, TypeEvent, idSub)
+		ns    = NewNamespace("", ServiceCRM)
+		got   = ns.New(TypeEntity, id).Sub(TypeEvent, idSub)
+		want  = ns.NewWithChild(TypeEntity, id, TypeEvent, idSub)
 	)
 
 	assert.Equal(t, want, got)
@@ -94,25 +98,30 @@ func TestID(t *testing.T) {
 	var (
 		id     = ksuid.New().String()
 		idSub  = ksuid.New().String()
-		v      = New(ServiceCRM, TypeEntity, id).Sub(TypeEvent, idSub)
+		ns     = NewNamespace("", ServiceCRM)
+		v      = ns.New(TypeEntity, id).Sub(TypeEvent, idSub)
 		child  = v.Child()
 		parent = v.Parent()
 	)
 
+	assert.Equal(t, ns, v.Namespace())
+	assert.Equal(t, ns, child.Namespace())
+	assert.Equal(t, ns, parent.Namespace())
+
 	assert.True(t, v.HasChild())
-	assert.Equal(t, id, v.ID())
+	assert.Equal(t, id, v.Value())
 	assert.Equal(t, ServiceCRM, v.Service())
 	assert.Equal(t, TypeEntity, v.Type())
 	assert.Equal(t, parent.String()+sep, v.ChildPrefix())
 
 	assert.False(t, parent.HasChild())
-	assert.Equal(t, id, parent.ID())
+	assert.Equal(t, id, parent.Value())
 	assert.Equal(t, ServiceCRM, parent.Service())
 	assert.Equal(t, TypeEntity, parent.Type())
 	assert.Equal(t, parent.String()+sep, parent.ChildPrefix())
 
 	assert.False(t, child.HasChild())
-	assert.Equal(t, idSub, child.ID())
+	assert.Equal(t, idSub, child.Value())
 	assert.Equal(t, ServiceCRM, child.Service())
 	assert.Equal(t, TypeEvent, child.Type())
 	assert.Equal(t, child.String()+sep, child.ChildPrefix())

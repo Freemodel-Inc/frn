@@ -8,7 +8,7 @@ import (
 )
 
 func TestKey_MarshalDynamoDBAttributeValue(t *testing.T) {
-	want := New(ServiceCRM, TypeEntity, "abc")
+	want := NewNamespace("", ServiceCRM).New(TypeEntity, "abc")
 	item, err := dynamodbattribute.Marshal(want)
 	assert.Nil(t, err)
 
@@ -19,10 +19,11 @@ func TestKey_MarshalDynamoDBAttributeValue(t *testing.T) {
 }
 
 func TestKeySet_MarshalDynamoDBAttributeValue(t *testing.T) {
+	ns := NewNamespace("", ServiceCRM)
 	want := KeySet{
-		New(ServiceCRM, TypeEntity, "a"),
-		New(ServiceCRM, TypeEntity, "b"),
-		New(ServiceCRM, TypeEntity, "c"),
+		ns.New(TypeEntity, "a"),
+		ns.New(TypeEntity, "b"),
+		ns.New(TypeEntity, "c"),
 	}
 
 	item, err := dynamodbattribute.Marshal(want)
