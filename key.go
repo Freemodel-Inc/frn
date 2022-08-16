@@ -8,6 +8,10 @@ var defaultNamespace = NewNamespace("")
 
 type IDFactoryFunc func() ID
 
+func (fn IDFactoryFunc) ID() ID {
+	return fn()
+}
+
 type IDFactory interface {
 	NewID() ID
 }
