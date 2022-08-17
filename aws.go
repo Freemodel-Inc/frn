@@ -72,6 +72,15 @@ func (kk KeySet) MarshalDynamoDBAttributeValue(item *dynamodb.AttributeValue) er
 	return nil
 }
 
+// Strings exports keys as string slice
+func (kk KeySet) Strings() []string {
+	var ss []string
+	for _, k := range kk {
+		ss = append(ss, k.String())
+	}
+	return ss
+}
+
 func (kk *KeySet) UnmarshalDynamoDBAttributeValue(item *dynamodb.AttributeValue) error {
 	if item.SS == nil {
 		return nil
