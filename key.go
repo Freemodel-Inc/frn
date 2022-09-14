@@ -167,6 +167,18 @@ func (id ID) WithChild(child ID) ID {
 	return id.Sub(child.Type(), child.Value())
 }
 
+type IDSet []ID
+
+// Contains returns true if id provided part of set
+func (vv IDSet) Contains(want ID) bool {
+	for _, v := range vv {
+		if v == want {
+			return true
+		}
+	}
+	return false
+}
+
 type Service string
 
 func (s Service) String() string {
