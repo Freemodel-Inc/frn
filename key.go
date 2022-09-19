@@ -179,6 +179,16 @@ func (vv IDSet) Contains(want ID) bool {
 	return false
 }
 
+func (vv IDSet) Where(fn func(ID) bool) IDSet {
+	var results IDSet
+	for _, v := range vv {
+		if fn(v) {
+			results = append(results, v)
+		}
+	}
+	return results
+}
+
 type Service string
 
 func (s Service) String() string {
