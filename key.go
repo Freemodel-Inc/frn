@@ -167,6 +167,16 @@ func (id ID) WithChild(child ID) ID {
 	return id.Sub(child.Type(), child.Value())
 }
 
+type IDMap map[ID]struct{}
+
+func (vv IDMap) Slice() IDSet {
+	var idSet IDSet
+	for v := range vv {
+		idSet = append(idSet, v)
+	}
+	return idSet
+}
+
 type IDSet []ID
 
 // Contains returns true if id provided part of set
