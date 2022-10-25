@@ -208,6 +208,7 @@ func (s Service) String() string {
 const (
 	ServiceCRM        Service = "crm"
 	ServiceOnboarding Service = "onboarding"
+	ServiceSystem     Service = "system"
 )
 
 type Type string
