@@ -207,6 +207,7 @@ func (s Service) String() string {
 
 const (
 	ServiceCRM        Service = "crm"
+	ServiceFinance    Service = "fin"
 	ServiceOnboarding Service = "onboarding"
 	ServiceSystem     Service = "system"
 )
