@@ -50,7 +50,6 @@ func Validate(id ID, patterns ...string) error {
 }
 
 func isValidID(id ID, pattern string) bool {
-	fmt.Println("isValidID", id, pattern)
 	parts := strings.Split(pattern, "/")
 	switch len(parts) {
 	case 1:
