@@ -1,6 +1,7 @@
 package frn
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -158,6 +159,31 @@ func TestValidator(t *testing.T) {
 				if tc.WantErr {
 					assert.NotNil(t, err)
 				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
+	t.Run("ptr", func(t *testing.T) {
+		type Example struct {
+			Value *ID `validate:"frn=parent"`
+		}
+
+		testCases := map[string]struct {
+			Value   *ID
+			WantErr bool
+		}{
+			"nil": {},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Value: tc.Value})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					fmt.Println(err)
 					assert.Nil(t, err)
 				}
 			})

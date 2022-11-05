@@ -9,16 +9,14 @@ import (
 
 func RegisterValidation(validate *validator.Validate) {
 	fn := func(fl validator.FieldLevel) bool {
-		raw := fl.Field().Interface()
-		if raw == nil {
-			return true
-		}
-
 		var id ID
-		switch v := raw.(type) {
+		switch v := fl.Field().Interface().(type) {
 		case ID:
 			id = v
 		case *ID:
+			if v == nil {
+				return true
+			}
 			id = *v
 		default:
 			return true
@@ -30,7 +28,7 @@ func RegisterValidation(validate *validator.Validate) {
 		return isValidID(id, fl.Param())
 	}
 
-	err := validate.RegisterValidation("frn", fn, false)
+	err := validate.RegisterValidation("frn", fn, true)
 	if err != nil {
 		panic(err)
 	}
@@ -52,6 +50,7 @@ func Validate(id ID, patterns ...string) error {
 }
 
 func isValidID(id ID, pattern string) bool {
+	fmt.Println("isValidID", id, pattern)
 	parts := strings.Split(pattern, "/")
 	switch len(parts) {
 	case 1:
