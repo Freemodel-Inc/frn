@@ -7,6 +7,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+const tagSep = "/"
+
 func RegisterValidation(validate *validator.Validate) {
 	fn := func(fl validator.FieldLevel) bool {
 		var id ID
@@ -50,7 +52,11 @@ func Validate(id ID, patterns ...string) error {
 }
 
 func isValidID(id ID, pattern string) bool {
-	parts := strings.Split(pattern, "/")
+	if !strings.Contains(pattern, tagSep) {
+		return !id.HasChild() && isMatch(pattern, id.Type())
+	}
+
+	parts := strings.Split(pattern, tagSep)
 	switch len(parts) {
 	case 1:
 		return !id.HasChild() && isMatch(parts[0], id.Type())
