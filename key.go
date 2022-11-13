@@ -110,6 +110,16 @@ func (id ID) HasChild() bool {
 	return ok
 }
 
+// In returns true if the id is explicitly within the provided set of ids
+func (id ID) In(wants ...ID) bool {
+	for _, want := range wants {
+		if id == want {
+			return true
+		}
+	}
+	return false
+}
+
 func (id ID) Value() string {
 	s, _ := id.partString(3)
 	return s
