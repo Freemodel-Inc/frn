@@ -48,10 +48,13 @@ func Validate(id ID, patterns ...string) error {
 	}
 
 	return fmt.Errorf("ID invalid: expected on of %v", strings.Join(patterns, ", "))
-
 }
 
 func isValidID(id ID, pattern string) bool {
+	if pattern == "" {
+		return id.IsValid()
+	}
+
 	if !strings.Contains(pattern, tagSep) {
 		return !id.HasChild() && isMatch(pattern, id.Type())
 	}

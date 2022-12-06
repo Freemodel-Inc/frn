@@ -25,6 +25,21 @@ func TestValidator(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("is frn", func(t *testing.T) {
+		type Example struct {
+			Value ID `validate:"frn"`
+		}
+
+		err := validate.Struct(Example{Value: ""})
+		assert.Nil(t, err)
+
+		err = validate.Struct(Example{Value: "blah"})
+		assert.NotNil(t, err)
+
+		err = validate.Struct(Example{Value: "fm:dev:blah:123"})
+		assert.Nil(t, err)
+	})
+
 	t.Run("parent", func(t *testing.T) {
 		type Example struct {
 			Value ID `validate:"frn=blah"`

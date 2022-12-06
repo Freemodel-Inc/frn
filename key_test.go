@@ -126,3 +126,65 @@ func TestID(t *testing.T) {
 	assert.Equal(t, TypeEvent, child.Type())
 	assert.Equal(t, child.String()+sep, child.ChildPrefix())
 }
+
+func TestID_IsValid(t *testing.T) {
+	testCases := map[string]struct {
+		ID      ID
+		IsValid bool
+	}{
+		"parent": {
+			ID:      "namespace:service:type:value",
+			IsValid: true,
+		},
+		"parent no namespace": {
+			ID:      ":service:type:value",
+			IsValid: false,
+		},
+		"parent no service": {
+			ID:      "namespace::type:value",
+			IsValid: false,
+		},
+		"parent small service": {
+			ID:      "namespace:s:type:value",
+			IsValid: true,
+		},
+		"parent no type": {
+			ID:      "namespace:service::value",
+			IsValid: false,
+		},
+		"parent no value": {
+			ID:      "namespace:service:type:",
+			IsValid: false,
+		},
+		"parent small value": {
+			ID:      "namespace:service:type:v",
+			IsValid: true,
+		},
+		"child": {
+			ID:      "namespace:service:type:value:sub-type:sub-value",
+			IsValid: true,
+		},
+		"child no namespace": {
+			ID:      ":service:type:value:sub-type:sub-value",
+			IsValid: false,
+		},
+		"child no sub-type": {
+			ID:      "namespace:service:type:value::sub-value",
+			IsValid: true,
+		},
+		"child no sub-value": {
+			ID:      "namespace:service:type:value:sub-type:",
+			IsValid: true,
+		},
+		"child small sub-value": {
+			ID:      "namespace:service:type:value:sub-type:s",
+			IsValid: true,
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			assert.Equal(t, tc.IsValid, tc.ID.IsValid())
+		})
+	}
+}

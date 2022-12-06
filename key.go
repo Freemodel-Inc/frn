@@ -133,6 +133,37 @@ func (id ID) IsPresent() bool {
 	return !id.IsEmpty()
 }
 
+func (id ID) IsValid() bool {
+	var (
+		indexes [8]int
+		count   int
+	)
+
+	for index, r := range id {
+		if r != ':' {
+			continue
+		}
+		indexes[count] = index
+		count++
+		if count >= len(indexes) {
+			return false // to many elements
+		}
+	}
+
+	// namespace:service:type:value:sub-type:sub-value
+	switch {
+	case count == 5:
+		if indexes[2] >= indexes[3] || indexes[3] >= indexes[4] {
+			return false
+		}
+		fallthrough
+	case count == 3:
+		return indexes[0] > 0 && indexes[0]+1 < indexes[1] && indexes[1]+1 < indexes[2] && indexes[2]+1 < len(id)
+	default:
+		return false
+	}
+}
+
 func (id ID) Namespace() Namespace {
 	s := id.String()
 	a := strings.Index(s, sep)
