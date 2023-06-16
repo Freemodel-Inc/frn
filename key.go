@@ -1,11 +1,23 @@
 package frn
 
 import (
-	"github.com/segmentio/ksuid"
+	"fmt"
+	"regexp"
 	"strings"
+
+	"github.com/segmentio/ksuid"
 )
 
-const sep = ":"
+const (
+	sep     = ":" // sep separates parent and child parts of the FRN
+	pathSep = "/" // separates parent and child ids from pathSep data
+)
+
+var (
+	// see test case, TestID_IsValid, for examples
+	// e.g. fm:crm:contact:1234
+	reValid = regexp.MustCompile(`^([a-zA-Z0-9\-_]+:){3}[a-zA-Z0-9\-_]+(:[a-zA-Z0-9\-_]+:[a-zA-Z0-9\-_]*)?(/[a-z0-9\-_/]+)?$`)
+)
 
 type IDFactoryFunc func(v string) ID
 
@@ -83,6 +95,14 @@ func (id ID) partString(i int) (string, bool) {
 	return string(id[begin:end]), true
 }
 
+// Base returns the id sans any path elements e.g. fm:crm:contact:1234/key/value => fm:crm:contact:1234
+func (id ID) Base() ID {
+	if index := strings.Index(id.String(), pathSep); index != -1 {
+		return id[:index]
+	}
+	return id
+}
+
 func (id ID) Child() ID {
 	st, ok := id.partString(4)
 	if !ok {
@@ -92,6 +112,11 @@ func (id ID) Child() ID {
 	si, ok := id.partString(5)
 	if !ok {
 		return ""
+	}
+
+	// strip trailing path from child
+	if index := strings.Index(si, pathSep); index != -1 {
+		si = si[:index]
 	}
 
 	return id.Namespace().New(Type(st), si)
@@ -122,6 +147,9 @@ func (id ID) In(wants ...ID) bool {
 
 func (id ID) Value() string {
 	s, _ := id.partString(3)
+	if index := strings.Index(s, pathSep); index != -1 {
+		return s[:index]
+	}
 	return s
 }
 
@@ -134,34 +162,7 @@ func (id ID) IsPresent() bool {
 }
 
 func (id ID) IsValid() bool {
-	var (
-		indexes [8]int
-		count   int
-	)
-
-	for index, r := range id {
-		if r != ':' {
-			continue
-		}
-		indexes[count] = index
-		count++
-		if count >= len(indexes) {
-			return false // to many elements
-		}
-	}
-
-	// namespace:service:type:value:sub-type:sub-value
-	switch {
-	case count == 5:
-		if indexes[2] >= indexes[3] || indexes[3] >= indexes[4] {
-			return false
-		}
-		fallthrough
-	case count == 3:
-		return indexes[0] > 0 && indexes[0]+1 < indexes[1] && indexes[1]+1 < indexes[2] && indexes[2]+1 < len(id)
-	default:
-		return false
-	}
+	return reValid.MatchString(id.String())
 }
 
 func (id ID) Namespace() Namespace {
@@ -183,6 +184,12 @@ func (id ID) Parent() ID {
 	if id.HasChild() {
 		return id.Namespace().New(id.Type(), id.Value())
 	}
+
+	// strip path if present from parent
+	if index := strings.Index(id.String(), pathSep); index != -1 {
+		return id[0:index]
+	}
+
 	return id
 }
 
@@ -199,6 +206,25 @@ func (id ID) Sub(st Type, idSub string) ID {
 	return ID(id.String() + sep + st.String() + sep + idSub)
 }
 
+// Path extracts the tertiary values from the id
+func (id ID) Path() (head, tail string, ok bool) {
+	s := id.String()
+	index := strings.Index(s, pathSep)
+	if index == -1 {
+		return "", "", false
+	}
+
+	parts := strings.SplitN(s[index+1:], pathSep, 2)
+	if len(parts) < 2 {
+		if parts[0] == "" {
+			return "", "", false
+		}
+		return parts[0], "", true
+	}
+
+	return parts[0], parts[1], true
+}
+
 func (id ID) Type() Type {
 	s, _ := id.partString(2)
 	return Type(s)
@@ -206,6 +232,20 @@ func (id ID) Type() Type {
 
 func (id ID) WithChild(child ID) ID {
 	return id.Sub(child.Type(), child.Value())
+}
+
+// WithPath returns the tertiary form of the id e.g. frm:crm:contact:123:address:456/a/b/c
+// currently only supports two levels of nesting e.g. a or a/b, but not a/b/c
+func (id ID) WithPath(head string, tail ...string) ID {
+	if len(tail) > 1 {
+		panic(fmt.Errorf("WithPath supports at most one tail value"))
+	}
+
+	s := string(id)
+	if index := strings.LastIndex(s, pathSep); index != -1 {
+		s = s[:index]
+	}
+	return ID(s + pathSep + head + pathSep + strings.Join(tail, pathSep))
 }
 
 type IDMap map[ID]struct{}

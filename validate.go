@@ -62,9 +62,11 @@ func isValidID(id ID, pattern string) bool {
 	parts := strings.Split(pattern, tagSep)
 	switch len(parts) {
 	case 1:
-		return !id.HasChild() && isMatch(parts[0], id.Type())
+		return isMatch(parts[0], id.Type())
 	case 2:
-		return id.HasChild() && isMatch(parts[0], id.Type()) && isMatch(parts[1], id.Child().Type())
+		return isMatch(parts[0], id.Type()) && isMatch(parts[1], id.Child().Type())
+	case 3:
+		return isMatch(parts[0], id.Type()) && isMatch(parts[1], id.Child().Type()) && isPathMatch(parts[2], id)
 	default:
 		return false
 	}
@@ -75,4 +77,9 @@ func isMatch(want string, got Type) bool {
 		return true
 	}
 	return want == got.String()
+}
+
+func isPathMatch(want string, id ID) bool {
+	got, _, _ := id.Path()
+	return want == got
 }
