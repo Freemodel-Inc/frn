@@ -256,3 +256,33 @@ func TestID_IsValid(t *testing.T) {
 		})
 	}
 }
+
+func TestID_Base(t *testing.T) {
+	testCases := map[string]struct {
+		ID   ID
+		Want ID
+	}{
+		"parent": {
+			ID:   "fm:crm:project:1",
+			Want: "fm:crm:project:1",
+		},
+		"parent with path": {
+			ID:   "fm:crm:project:1/key/value",
+			Want: "fm:crm:project:1",
+		},
+		"child": {
+			ID:   "fm:crm:project:1:invoice:2",
+			Want: "fm:crm:project:1:invoice:2",
+		},
+		"child with path": {
+			ID:   "fm:crm:project:1:invoice:2/key/value",
+			Want: "fm:crm:project:1:invoice:2",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			assert.Equal(t, tc.Want, tc.ID.Base())
+		})
+	}
+}

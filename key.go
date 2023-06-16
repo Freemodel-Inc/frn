@@ -95,6 +95,14 @@ func (id ID) partString(i int) (string, bool) {
 	return string(id[begin:end]), true
 }
 
+// Base returns the id sans any path elements e.g. fm:crm:contact:1234/key/value => fm:crm:contact:1234
+func (id ID) Base() ID {
+	if index := strings.Index(id.String(), pathSep); index != -1 {
+		return id[:index]
+	}
+	return id
+}
+
 func (id ID) Child() ID {
 	st, ok := id.partString(4)
 	if !ok {
