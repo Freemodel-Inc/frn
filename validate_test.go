@@ -75,6 +75,45 @@ func TestValidator(t *testing.T) {
 		}
 	})
 
+	t.Run("parent with path", func(t *testing.T) {
+		type Example struct {
+			Value ID `validate:"frn=blah//key"`
+		}
+
+		testCases := map[string]struct {
+			Value   ID
+			WantErr bool
+		}{
+			"empty string": {
+				Value:   "",
+				WantErr: false,
+			},
+			"ok": {
+				Value:   "fm:dev:blah:123/key/value",
+				WantErr: false,
+			},
+			"child": {
+				Value:   "fm:dev:blah:123:child:456/key/value",
+				WantErr: false,
+			},
+			"fails": {
+				Value:   "fm:dev:boom:123",
+				WantErr: true,
+			},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Value: tc.Value})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
 	t.Run("child", func(t *testing.T) {
 		type Example struct {
 			Value ID `validate:"frn=/blah"`
@@ -127,6 +166,53 @@ func TestValidator(t *testing.T) {
 				Value:   "fm:dev:parent:123:child:456",
 				WantErr: false,
 			},
+			"ok - tertiary": {
+				Value:   "fm:dev:parent:123:child:456/key/value",
+				WantErr: false,
+			},
+			"bad child": {
+				Value:   "fm:dev:parent:123:other:456",
+				WantErr: true,
+			},
+			"bad parent": {
+				Value:   "fm:dev:other:123:child:456",
+				WantErr: true,
+			},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Value: tc.Value})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
+	t.Run("parent and child and path", func(t *testing.T) {
+		type Example struct {
+			Value ID `validate:"frn=parent/child/key"`
+		}
+
+		testCases := map[string]struct {
+			Value   ID
+			WantErr bool
+		}{
+			"empty string": {
+				Value:   "",
+				WantErr: false,
+			},
+			"ok": {
+				Value:   "fm:dev:parent:123:child:456/key/value",
+				WantErr: false,
+			},
+			"ok - tertiary": {
+				Value:   "fm:dev:parent:123:child:456/key/value",
+				WantErr: false,
+			},
 			"bad child": {
 				Value:   "fm:dev:parent:123:other:456",
 				WantErr: true,
@@ -160,6 +246,10 @@ func TestValidator(t *testing.T) {
 		}{
 			"ok": {
 				Value:   "fm:dev:parent:123",
+				WantErr: false,
+			},
+			"ok - tertiary": {
+				Value:   "fm:dev:parent:123/key/value",
 				WantErr: false,
 			},
 			"err": {
@@ -222,6 +312,11 @@ func TestValidate(t *testing.T) {
 		},
 		"ok": {
 			Value:   "fm:dev:blah:123",
+			Pattern: "blah",
+			WantErr: false,
+		},
+		"ok - tertiary": {
+			Value:   "fm:dev:blah:123/key/value",
 			Pattern: "blah",
 			WantErr: false,
 		},
