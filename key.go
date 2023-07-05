@@ -5,7 +5,10 @@ import (
 	"strings"
 )
 
-const sep = ":"
+const (
+	pathSep = "/"
+	sep     = ":"
+)
 
 type IDFactoryFunc func(v string) ID
 
@@ -110,6 +113,15 @@ func (id ID) HasChild() bool {
 	return ok
 }
 
+func (id ID) HasPath() bool {
+	s := id.String()
+	index := strings.Index(s, pathSep)
+	if index == -1 {
+		return false
+	}
+	return true
+}
+
 // In returns true if the id is explicitly within the provided set of ids
 func (id ID) In(wants ...ID) bool {
 	for _, want := range wants {
@@ -184,6 +196,25 @@ func (id ID) Parent() ID {
 		return id.Namespace().New(id.Type(), id.Value())
 	}
 	return id
+}
+
+// Path extracts the tertiary values from the id
+func (id ID) Path() (head, tail string, ok bool) {
+	s := id.String()
+	index := strings.Index(s, pathSep)
+	if index == -1 {
+		return "", "", false
+	}
+
+	parts := strings.SplitN(s[index+1:], pathSep, 2)
+	if len(parts) < 2 {
+		if parts[0] == "" {
+			return "", "", false
+		}
+		return parts[0], "", true
+	}
+
+	return parts[0], parts[1], true
 }
 
 func (id ID) Service() Service {
