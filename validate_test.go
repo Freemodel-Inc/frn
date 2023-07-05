@@ -118,6 +118,33 @@ func TestValidator(t *testing.T) {
 		}
 	})
 
+	t.Run("live parent with path", func(t *testing.T) {
+		type Example struct {
+			Value ID `validate:"required,frn=project#account"`
+		}
+
+		testCases := map[string]struct {
+			Value   ID
+			WantErr bool
+		}{
+			"ok": {
+				Value:   "dev:crm:project:4/account/owner-ap",
+				WantErr: false,
+			},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Value: tc.Value})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
 	t.Run("child", func(t *testing.T) {
 		type Example struct {
 			Value ID `validate:"frn=/blah"`
