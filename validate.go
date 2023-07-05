@@ -1,14 +1,16 @@
 package frn
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
 
-var re = regexp.MustCompile(`^([^/]+)?(/)?([^/#]+)?(#)?(.+)?$`)
+var re = regexp.MustCompile(`^([^/#]+)?(/)?([^/#]+)?(#)?([^#]+)?$`)
 
 func RegisterValidation(validate *validator.Validate) {
 	fn := func(fl validator.FieldLevel) bool {
@@ -70,33 +72,46 @@ func isValidID(id ID, pattern string) bool {
 		case 1: // entity
 			if value != "" {
 				if id.Type().String() != value {
+					fmt.Println("1", id.Type().String(), value)
+					encoder := json.NewEncoder(os.Stdout)
+					encoder.SetIndent("", "  ")
+					_ = encoder.Encode(patternMatch)
 					return false // parent type mismatch
 				}
 			}
 		case 2: // /
 			switch {
 			case value == "" && id.HasChild():
+				fmt.Println("2a")
+				encoder := json.NewEncoder(os.Stdout)
+				encoder.SetIndent("", "  ")
+				_ = encoder.Encode(patternMatch)
 				return false
 			case value != "" && !id.HasChild():
+				fmt.Println("2b")
+				return false
 			}
 		case 3: // card_tx
 			if value != "" {
 				if id.Child().Type().String() != value {
+					fmt.Println("3")
 					return false // child type mismatch
 				}
 			}
 		case 4: // #
 			switch {
 			case value == "" && id.HasPath():
-				fmt.Println("here")
+				fmt.Println("4a")
 				return false
 			case value != "" && !id.HasPath():
+				fmt.Println("4b")
 				return false
 			}
 		case 5: // receipt
 			if value != "" {
 				want, _, _ := id.Path()
 				if value != want {
+					fmt.Println("5")
 					return false
 				}
 			}

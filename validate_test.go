@@ -90,6 +90,10 @@ func TestValidator(t *testing.T) {
 			},
 			"ok": {
 				Value:   "fm:dev:blah:123/key/value",
+				WantErr: false,
+			},
+			"bad path": {
+				Value:   "fm:dev:blah:123/nope/value",
 				WantErr: true,
 			},
 			"child": {
