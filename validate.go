@@ -105,3 +105,8 @@ func isValidID(id ID, pattern string) bool {
 
 	return true
 }
+
+func isPathMatch(want string, id ID) bool {
+	got, _, _ := id.Path()
+	return want == got
+}

@@ -19,6 +19,6 @@ Freemodel Resource Name (frn) - go package to manage universal ids
 
 ```go
 type Input struct {
-	ID frn.ID `validate:"required,frn=project"` // require id that must be a project id
+  ID frn.ID `validate:"required,frn=project"` // require id that must be a project id
 }
 ```

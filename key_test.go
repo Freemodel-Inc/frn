@@ -94,6 +94,62 @@ func TestID_Sub(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
+func TestParse(t *testing.T) {
+	testCases := map[string]struct {
+		ID            ID
+		Parent        ID
+		Child         ID
+		Value         string
+		TertiaryKey   string
+		TertiaryValue string
+	}{
+		"empty": {
+			ID: "",
+		},
+		"parent": {
+			ID:     "fm:crm:project:1",
+			Parent: "fm:crm:project:1",
+			Value:  "1",
+		},
+		"parent tertiary": {
+			ID:            "fm:crm:project:1/key/value",
+			Parent:        "fm:crm:project:1",
+			Value:         "1",
+			TertiaryKey:   "key",
+			TertiaryValue: "value",
+		},
+		"child": {
+			ID:            "fm:crm:project:1:contract:2",
+			Parent:        "fm:crm:project:1",
+			Child:         "fm:crm:contract:2",
+			Value:         "1",
+			TertiaryKey:   "",
+			TertiaryValue: "",
+		},
+		"child tertiary": {
+			ID:            "fm:crm:project:1:contract:2/key/value",
+			Parent:        "fm:crm:project:1",
+			Child:         "fm:crm:contract:2",
+			Value:         "1",
+			TertiaryKey:   "key",
+			TertiaryValue: "value",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			assert.Equal(t, tc.Parent, tc.ID.Parent())
+			assert.Equal(t, tc.Child, tc.ID.Child())
+			assert.Equal(t, tc.Value, tc.ID.Value())
+
+			key, value, ok := tc.ID.Path()
+			assert.Equal(t, tc.TertiaryKey, key)
+			assert.Equal(t, tc.TertiaryValue, value)
+			assert.Equal(t, key != "" || value != "", ok)
+		})
+	}
+}
+
 func TestID(t *testing.T) {
 	var (
 		id     = ksuid.New().String()
@@ -129,12 +185,20 @@ func TestID(t *testing.T) {
 
 func TestID_IsValid(t *testing.T) {
 	testCases := map[string]struct {
-		ID      ID
-		IsValid bool
+		ID            ID
+		IsValid       bool
+		TertiaryKey   string
+		TertiaryValue string
 	}{
 		"parent": {
 			ID:      "namespace:service:type:value",
 			IsValid: true,
+		},
+		"parent - tertiary": {
+			ID:            "namespace:service:type:value/tertiary-key/tertiary-value",
+			IsValid:       true,
+			TertiaryKey:   "tertiary-key",
+			TertiaryValue: "tertiary-value",
 		},
 		"parent no namespace": {
 			ID:      ":service:type:value",
@@ -170,7 +234,7 @@ func TestID_IsValid(t *testing.T) {
 		},
 		"child no sub-type": {
 			ID:      "namespace:service:type:value::sub-value",
-			IsValid: true,
+			IsValid: false,
 		},
 		"child no sub-value": {
 			ID:      "namespace:service:type:value:sub-type:",
@@ -185,6 +249,40 @@ func TestID_IsValid(t *testing.T) {
 	for label, tc := range testCases {
 		t.Run(label, func(t *testing.T) {
 			assert.Equal(t, tc.IsValid, tc.ID.IsValid())
+			key, value, ok := tc.ID.Path()
+			assert.Equal(t, tc.TertiaryKey, key)
+			assert.Equal(t, tc.TertiaryValue, value)
+			assert.Equal(t, key != "" || value != "", ok)
+		})
+	}
+}
+
+func TestID_Base(t *testing.T) {
+	testCases := map[string]struct {
+		ID   ID
+		Want ID
+	}{
+		"parent": {
+			ID:   "fm:crm:project:1",
+			Want: "fm:crm:project:1",
+		},
+		"parent with path": {
+			ID:   "fm:crm:project:1/key/value",
+			Want: "fm:crm:project:1",
+		},
+		"child": {
+			ID:   "fm:crm:project:1:invoice:2",
+			Want: "fm:crm:project:1:invoice:2",
+		},
+		"child with path": {
+			ID:   "fm:crm:project:1:invoice:2/key/value",
+			Want: "fm:crm:project:1:invoice:2",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			assert.Equal(t, tc.Want, tc.ID.Base())
 		})
 	}
 }
