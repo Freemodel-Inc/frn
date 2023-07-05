@@ -234,25 +234,6 @@ func (id ID) Sub(st Type, idSub string) ID {
 	return ID(id.String() + sep + st.String() + sep + idSub)
 }
 
-// Path extracts the tertiary values from the id
-func (id ID) Path() (head, tail string, ok bool) {
-	s := id.String()
-	index := strings.Index(s, pathSep)
-	if index == -1 {
-		return "", "", false
-	}
-
-	parts := strings.SplitN(s[index+1:], pathSep, 2)
-	if len(parts) < 2 {
-		if parts[0] == "" {
-			return "", "", false
-		}
-		return parts[0], "", true
-	}
-
-	return parts[0], parts[1], true
-}
-
 func (id ID) Type() Type {
 	s, _ := id.partString(2)
 	return Type(s)
