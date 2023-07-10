@@ -188,3 +188,85 @@ func TestID_IsValid(t *testing.T) {
 		})
 	}
 }
+
+func TestID_IsParentType(t *testing.T) {
+	testCases := map[string]struct {
+		ID   ID
+		Type Type
+		Want bool
+	}{
+		"empty": {
+			ID:   "",
+			Type: "project",
+			Want: false,
+		},
+		"parent": {
+			ID:   "fm:crm:project:1",
+			Type: "project",
+			Want: true,
+		},
+		"parent - nope": {
+			ID:   "fm:crm:entity:1",
+			Type: "project",
+			Want: false,
+		},
+		"parent and child": {
+			ID:   "fm:crm:project:1:contract:2",
+			Type: "project",
+			Want: true,
+		},
+		"parent and child - nope": {
+			ID:   "fm:crm:invalid:1:project:2",
+			Type: "project",
+			Want: false,
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			got := tc.ID.IsParentType(tc.Type)
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}
+
+func TestID_IsChildType(t *testing.T) {
+	testCases := map[string]struct {
+		ID   ID
+		Type Type
+		Want bool
+	}{
+		"empty": {
+			ID:   "",
+			Type: "project",
+			Want: false,
+		},
+		"parent": {
+			ID:   "fm:crm:project:1",
+			Type: "project",
+			Want: false,
+		},
+		"parent - nope": {
+			ID:   "fm:crm:entity:1",
+			Type: "project",
+			Want: false,
+		},
+		"parent and child": {
+			ID:   "fm:crm:project:1:contract:2",
+			Type: "project",
+			Want: false,
+		},
+		"parent and child - nope": {
+			ID:   "fm:crm:invalid:1:project:2",
+			Type: "project",
+			Want: true,
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			got := tc.ID.IsChildType(tc.Type)
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}
