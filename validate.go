@@ -2,12 +2,13 @@ package frn
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
 
-const tagSep = "/"
+var re = regexp.MustCompile(`^([^/#]+)?(/)?([^/#]+)?(#)?([^#]+)?$`)
 
 func RegisterValidation(validate *validator.Validate) {
 	fn := func(fl validator.FieldLevel) bool {
@@ -51,35 +52,56 @@ func Validate(id ID, patterns ...string) error {
 }
 
 func isValidID(id ID, pattern string) bool {
+	if id == "" {
+		return true
+	}
 	if pattern == "" {
 		return id.IsValid()
 	}
 
-	if !strings.Contains(pattern, tagSep) {
-		return !id.HasChild() && isMatch(pattern, id.Type())
-	}
-
-	parts := strings.Split(pattern, tagSep)
-	switch len(parts) {
-	case 1:
-		return isMatch(parts[0], id.Type())
-	case 2:
-		return isMatch(parts[0], id.Type()) && isMatch(parts[1], id.Child().Type())
-	case 3:
-		return isMatch(parts[0], id.Type()) && isMatch(parts[1], id.Child().Type()) && isPathMatch(parts[2], id)
-	default:
+	patternMatch := re.FindStringSubmatch(pattern)
+	if len(patternMatch) == 0 {
 		return false
 	}
-}
 
-func isMatch(want string, got Type) bool {
-	if want == "" {
-		return true
+	// e.g. entity/card_tx#receipt
+	for index, value := range patternMatch {
+		switch index {
+		case 1: // entity
+			if value != "" {
+				if id.Type().String() != value {
+					return false // parent type mismatch
+				}
+			}
+		case 2: // /
+			switch {
+			case value == "" && id.HasChild():
+				return false
+			case value != "" && !id.HasChild():
+				return false
+			}
+		case 3: // card_tx
+			if value != "" {
+				if id.Child().Type().String() != value {
+					return false // child type mismatch
+				}
+			}
+		case 4: // #
+			switch {
+			case value == "" && id.HasPath():
+				return false
+			case value != "" && !id.HasPath():
+				return false
+			}
+		case 5: // receipt
+			if value != "" {
+				want, _, _ := id.Path()
+				if value != want {
+					return false
+				}
+			}
+		}
 	}
-	return want == got.String()
-}
 
-func isPathMatch(want string, id ID) bool {
-	got, _, _ := id.Path()
-	return want == got
+	return true
 }

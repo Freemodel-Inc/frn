@@ -77,7 +77,7 @@ func TestValidator(t *testing.T) {
 
 	t.Run("parent with path", func(t *testing.T) {
 		type Example struct {
-			Value ID `validate:"frn=blah//key"`
+			Value ID `validate:"frn=blah#key"`
 		}
 
 		testCases := map[string]struct {
@@ -92,13 +92,44 @@ func TestValidator(t *testing.T) {
 				Value:   "fm:dev:blah:123/key/value",
 				WantErr: false,
 			},
+			"bad path": {
+				Value:   "fm:dev:blah:123/nope/value",
+				WantErr: true,
+			},
 			"child": {
 				Value:   "fm:dev:blah:123:child:456/key/value",
-				WantErr: false,
+				WantErr: true,
 			},
 			"fails": {
 				Value:   "fm:dev:boom:123",
 				WantErr: true,
+			},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Value: tc.Value})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
+	t.Run("live parent with path", func(t *testing.T) {
+		type Example struct {
+			Value ID `validate:"required,frn=project#account"`
+		}
+
+		testCases := map[string]struct {
+			Value   ID
+			WantErr bool
+		}{
+			"ok": {
+				Value:   "dev:crm:project:4/account/owner-ap",
+				WantErr: false,
 			},
 		}
 
@@ -168,7 +199,7 @@ func TestValidator(t *testing.T) {
 			},
 			"ok - tertiary": {
 				Value:   "fm:dev:parent:123:child:456/key/value",
-				WantErr: false,
+				WantErr: true,
 			},
 			"bad child": {
 				Value:   "fm:dev:parent:123:other:456",
@@ -194,7 +225,7 @@ func TestValidator(t *testing.T) {
 
 	t.Run("parent and child and path", func(t *testing.T) {
 		type Example struct {
-			Value ID `validate:"frn=parent/child/key"`
+			Value ID `validate:"frn=parent/child#key"`
 		}
 
 		testCases := map[string]struct {
@@ -250,7 +281,7 @@ func TestValidator(t *testing.T) {
 			},
 			"ok - tertiary": {
 				Value:   "fm:dev:parent:123/key/value",
-				WantErr: false,
+				WantErr: true,
 			},
 			"err": {
 				Value:   "fm:dev:parent:123:child:456",
@@ -318,7 +349,7 @@ func TestValidate(t *testing.T) {
 		"ok - tertiary": {
 			Value:   "fm:dev:blah:123/key/value",
 			Pattern: "blah",
-			WantErr: false,
+			WantErr: true,
 		},
 		"fails": {
 			Value:   "fm:dev:boom:123",

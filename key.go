@@ -135,6 +135,15 @@ func (id ID) HasChild() bool {
 	return ok
 }
 
+func (id ID) HasPath() bool {
+	s := id.String()
+	index := strings.Index(s, pathSep)
+	if index == -1 {
+		return false
+	}
+	return true
+}
+
 // In returns true if the id is explicitly within the provided set of ids
 func (id ID) In(wants ...ID) bool {
 	for _, want := range wants {
@@ -203,19 +212,6 @@ func (id ID) Parent() ID {
 	return id
 }
 
-func (id ID) Service() Service {
-	partString, _ := id.partString(1)
-	return Service(partString)
-}
-
-func (id ID) String() string {
-	return string(id)
-}
-
-func (id ID) Sub(st Type, idSub string) ID {
-	return ID(id.String() + sep + st.String() + sep + idSub)
-}
-
 // Path extracts the tertiary values from the id
 func (id ID) Path() (head, tail string, ok bool) {
 	s := id.String()
@@ -233,6 +229,19 @@ func (id ID) Path() (head, tail string, ok bool) {
 	}
 
 	return parts[0], parts[1], true
+}
+
+func (id ID) Service() Service {
+	partString, _ := id.partString(1)
+	return Service(partString)
+}
+
+func (id ID) String() string {
+	return string(id)
+}
+
+func (id ID) Sub(st Type, idSub string) ID {
+	return ID(id.String() + sep + st.String() + sep + idSub)
 }
 
 func (id ID) Type() Type {
