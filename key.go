@@ -157,6 +157,16 @@ func (id ID) IsEmpty() bool {
 	return id == ""
 }
 
+// IsParentType returns true if the parent id is of the provided type
+func (id ID) IsParentType(want Type) bool {
+	return id.Type() == want
+}
+
+// IsChildType returns true if the child id is of the provided type
+func (id ID) IsChildType(want Type) bool {
+	return id.HasChild() && id.Child().Type() == want
+}
+
 func (id ID) IsPresent() bool {
 	return !id.IsEmpty()
 }
