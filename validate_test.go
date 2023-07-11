@@ -1,7 +1,6 @@
 package frn
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -319,7 +318,6 @@ func TestValidator(t *testing.T) {
 				if tc.WantErr {
 					assert.NotNil(t, err)
 				} else {
-					fmt.Println(err)
 					assert.Nil(t, err)
 				}
 			})
