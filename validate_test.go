@@ -354,6 +354,16 @@ func TestValidate(t *testing.T) {
 			Pattern: "blah",
 			WantErr: true,
 		},
+		"path only": {
+			Value:   "fm:dev:project:123/account/456",
+			Pattern: "#account",
+			WantErr: false,
+		},
+		"path only - fails": {
+			Value:   "fm:dev:project:123/account/456",
+			Pattern: "#other",
+			WantErr: true,
+		},
 	}
 
 	for label, tc := range testCases {
