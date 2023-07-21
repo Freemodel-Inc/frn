@@ -368,3 +368,44 @@ func TestID_IsChildType(t *testing.T) {
 		})
 	}
 }
+
+func TestID_WithPath(t *testing.T) {
+	testCases := map[string]struct {
+		ID   ID
+		Head string
+		Tail string
+		Want ID
+	}{
+		"parent": {
+			ID:   "fm:crm:project:1",
+			Head: "key",
+			Tail: "value",
+			Want: "fm:crm:project:1/key/value",
+		},
+		"parent replace": {
+			ID:   "fm:crm:project:1/foo/bar",
+			Head: "key",
+			Tail: "value",
+			Want: "fm:crm:project:1/key/value",
+		},
+		"child": {
+			ID:   "fm:crm:project:1:contract:2",
+			Head: "key",
+			Tail: "value",
+			Want: "fm:crm:project:1:contract:2/key/value",
+		},
+		"child replace": {
+			ID:   "fm:crm:project:1:contract:2/foo/bar",
+			Head: "key",
+			Tail: "value",
+			Want: "fm:crm:project:1:contract:2/key/value",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			got := tc.ID.WithPath(tc.Head, tc.Tail)
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}

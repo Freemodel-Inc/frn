@@ -1,7 +1,6 @@
 package frn
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -319,7 +318,6 @@ func TestValidator(t *testing.T) {
 				if tc.WantErr {
 					assert.NotNil(t, err)
 				} else {
-					fmt.Println(err)
 					assert.Nil(t, err)
 				}
 			})
@@ -354,6 +352,16 @@ func TestValidate(t *testing.T) {
 		"fails": {
 			Value:   "fm:dev:boom:123",
 			Pattern: "blah",
+			WantErr: true,
+		},
+		"path only": {
+			Value:   "fm:dev:project:123/account/456",
+			Pattern: "#account",
+			WantErr: false,
+		},
+		"path only - fails": {
+			Value:   "fm:dev:project:123/account/456",
+			Pattern: "#other",
 			WantErr: true,
 		},
 	}
