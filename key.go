@@ -44,6 +44,14 @@ func NewNamespace(env string, s Service) Namespace {
 	return Namespace(env + sep + s.String())
 }
 
+// Env returns the environment e.g. fm:crm => fm
+func (n Namespace) Env() string {
+	if index := strings.Index(string(n), sep); index > 0 {
+		return string(n)[:index]
+	}
+	return ""
+}
+
 func (n Namespace) IDFactory(t Type) IDFactoryFunc {
 	return func(v string) ID {
 		return ID(n.String() + sep + t.String() + sep + v)

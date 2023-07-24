@@ -409,3 +409,27 @@ func TestID_WithPath(t *testing.T) {
 		})
 	}
 }
+
+func TestNamespace_Env(t *testing.T) {
+	testCases := map[string]struct {
+		NS   Namespace
+		Want string
+	}{
+		"blank": {},
+		"empty": {
+			NS:   ":crm:project:1",
+			Want: "",
+		},
+		"default": {
+			NS:   "fm:crm:project:1",
+			Want: "fm",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			got := tc.NS.Env()
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}
