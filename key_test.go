@@ -433,3 +433,16 @@ func TestNamespace_Env(t *testing.T) {
 		})
 	}
 }
+
+func TestNamespace_NewID(t *testing.T) {
+	ns := NewNamespace("", ServiceCRM)
+	id := ns.NewID("contract")
+	assert.NotZero(t, id.Value())
+}
+
+func TestID_SubID(t *testing.T) {
+	ns := NewNamespace("", ServiceCRM)
+	project := ns.New("project", "1")
+	id := project.SubID("contract")
+	assert.NotZero(t, id.Child().Value())
+}
