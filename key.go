@@ -62,6 +62,11 @@ func (n Namespace) New(t Type, id string) ID {
 	return ID(n.String() + sep + t.String() + sep + id)
 }
 
+// NewID returns a new id with a random value
+func (n Namespace) NewID(t Type) ID {
+	return n.New(t, ksuid.New().String())
+}
+
 func (n Namespace) NewWithChild(t Type, id string, st Type, idSub string) ID {
 	return ID(n.String() + sep + t.String() + sep + id + sep + st.String() + sep + idSub)
 }
@@ -250,6 +255,11 @@ func (id ID) String() string {
 
 func (id ID) Sub(st Type, idSub string) ID {
 	return ID(id.String() + sep + st.String() + sep + idSub)
+}
+
+// SubID returns a new id with a random value
+func (id ID) SubID(st Type) ID {
+	return id.Sub(st, ksuid.New().String())
 }
 
 func (id ID) Type() Type {
