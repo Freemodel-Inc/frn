@@ -433,3 +433,9 @@ func TestNamespace_Env(t *testing.T) {
 		})
 	}
 }
+
+func TestIDSet_Trim(t *testing.T) {
+	idSet := IDSet{"a", "b", "", "", "c", ""}
+	got := idSet.Trim()
+	assert.Equal(t, IDSet{"a", "b", "c"}, got)
+}

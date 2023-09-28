@@ -298,6 +298,18 @@ func (vv IDSet) Contains(want ID) bool {
 	return false
 }
 
+// Trim returns a new IDSet with the blank ids removed
+func (vv IDSet) Trim() IDSet {
+	var idSet IDSet
+	for _, v := range vv {
+		if v == "" {
+			continue
+		}
+		idSet = append(idSet, v)
+	}
+	return idSet
+}
+
 func (vv IDSet) Where(fn func(ID) bool) IDSet {
 	var results IDSet
 	for _, v := range vv {
