@@ -118,6 +118,13 @@ func TestParse(t *testing.T) {
 			TertiaryKey:   "key",
 			TertiaryValue: "value",
 		},
+		"parent tertiary - no path value": {
+			ID:            "fm:crm:project:1/key",
+			Parent:        "fm:crm:project:1",
+			Value:         "1",
+			TertiaryKey:   "key",
+			TertiaryValue: "",
+		},
 		"child": {
 			ID:            "fm:crm:project:1:contract:2",
 			Parent:        "fm:crm:project:1",
@@ -133,6 +140,14 @@ func TestParse(t *testing.T) {
 			Value:         "1",
 			TertiaryKey:   "key",
 			TertiaryValue: "value",
+		},
+		"child tertiary - no path value": {
+			ID:            "fm:crm:project:1:contract:2/key",
+			Parent:        "fm:crm:project:1",
+			Child:         "fm:crm:contract:2",
+			Value:         "1",
+			TertiaryKey:   "key",
+			TertiaryValue: "",
 		},
 	}
 
@@ -199,6 +214,12 @@ func TestID_IsValid(t *testing.T) {
 			IsValid:       true,
 			TertiaryKey:   "tertiary-key",
 			TertiaryValue: "tertiary-value",
+		},
+		"parent - tertiary no child": {
+			ID:            "namespace:service:type:value/tertiary-key",
+			IsValid:       true,
+			TertiaryKey:   "tertiary-key",
+			TertiaryValue: "",
 		},
 		"parent no namespace": {
 			ID:      ":service:type:value",
@@ -270,12 +291,20 @@ func TestID_Base(t *testing.T) {
 			ID:   "fm:crm:project:1/key/value",
 			Want: "fm:crm:project:1",
 		},
+		"parent with path (no value)": {
+			ID:   "fm:crm:project:1/key",
+			Want: "fm:crm:project:1",
+		},
 		"child": {
 			ID:   "fm:crm:project:1:invoice:2",
 			Want: "fm:crm:project:1:invoice:2",
 		},
 		"child with path": {
 			ID:   "fm:crm:project:1:invoice:2/key/value",
+			Want: "fm:crm:project:1:invoice:2",
+		},
+		"child with path (no value)": {
+			ID:   "fm:crm:project:1:invoice:2/key",
 			Want: "fm:crm:project:1:invoice:2",
 		},
 	}
@@ -381,6 +410,12 @@ func TestID_WithPath(t *testing.T) {
 			Head: "key",
 			Tail: "value",
 			Want: "fm:crm:project:1/key/value",
+		},
+		"parent with no path value": {
+			ID:   "fm:crm:project:1",
+			Head: "key",
+			Tail: "",
+			Want: "fm:crm:project:1/key",
 		},
 		"parent replace": {
 			ID:   "fm:crm:project:1/foo/bar",

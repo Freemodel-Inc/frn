@@ -130,6 +130,10 @@ func TestValidator(t *testing.T) {
 				Value:   "dev:crm:project:4/account/owner-ap",
 				WantErr: false,
 			},
+			"ok - path with no value": {
+				Value:   "dev:crm:project:4/account",
+				WantErr: false,
+			},
 		}
 
 		for label, tc := range testCases {
@@ -241,6 +245,10 @@ func TestValidator(t *testing.T) {
 			},
 			"ok - tertiary": {
 				Value:   "fm:dev:parent:123:child:456/key/value",
+				WantErr: false,
+			},
+			"ok - tertiary with no child": {
+				Value:   "fm:dev:parent:123:child:456/key",
 				WantErr: false,
 			},
 			"bad child": {
@@ -356,6 +364,11 @@ func TestValidate(t *testing.T) {
 		},
 		"path only": {
 			Value:   "fm:dev:project:123/account/456",
+			Pattern: "#account",
+			WantErr: false,
+		},
+		"path only - no child": {
+			Value:   "fm:dev:project:123/account",
 			Pattern: "#account",
 			WantErr: false,
 		},

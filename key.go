@@ -1,6 +1,7 @@
 package frn
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strings"
@@ -273,7 +274,19 @@ func (id ID) WithPath(head string, tail ...string) ID {
 	if index := strings.Index(s, pathSep); index != -1 {
 		s = s[:index]
 	}
-	return ID(s + pathSep + head + pathSep + strings.Join(tail, pathSep))
+
+	buf := bytes.NewBuffer(make([]byte, 0, 64))
+	buf.WriteString(s)
+	buf.WriteString(pathSep)
+	buf.WriteString(head)
+	for _, t := range tail {
+		if t == "" {
+			continue
+		}
+		buf.WriteString(pathSep)
+		buf.WriteString(t)
+	}
+	return ID(buf.String())
 }
 
 type IDMap map[ID]struct{}
