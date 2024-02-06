@@ -308,6 +308,92 @@ func TestValidator(t *testing.T) {
 		}
 	})
 
+	t.Run("slice", func(t *testing.T) {
+		type Example struct {
+			Values []ID `validate:"frn=parent"`
+		}
+
+		testCases := map[string]struct {
+			Values  []ID
+			WantErr bool
+		}{
+			"zero": {
+				Values:  nil,
+				WantErr: false,
+			},
+			"fail - bad id": {
+				Values:  []ID{"blah"},
+				WantErr: true,
+			},
+			"ok": {
+				Values:  []ID{"fm:crm:parent:1"},
+				WantErr: false,
+			},
+			"one bad apple": {
+				Values:  []ID{"fm:crm:parent:1", "fm:crm:parent:2", "boom"},
+				WantErr: true,
+			},
+			"wrong type": {
+				Values:  []ID{"fm:crm:parent:1", "fm:crm:child:2"},
+				WantErr: true,
+			},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Values: tc.Values})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
+	t.Run("IDSet", func(t *testing.T) {
+		type Example struct {
+			Values []ID `validate:"frn=parent"`
+		}
+
+		testCases := map[string]struct {
+			Values  IDSet
+			WantErr bool
+		}{
+			"zero": {
+				Values:  nil,
+				WantErr: false,
+			},
+			"fail - bad id": {
+				Values:  []ID{"blah"},
+				WantErr: true,
+			},
+			"ok": {
+				Values:  []ID{"fm:crm:parent:1"},
+				WantErr: false,
+			},
+			"one bad apple": {
+				Values:  []ID{"fm:crm:parent:1", "fm:crm:parent:2", "boom"},
+				WantErr: true,
+			},
+			"wrong type": {
+				Values:  []ID{"fm:crm:parent:1", "fm:crm:child:2"},
+				WantErr: true,
+			},
+		}
+
+		for label, tc := range testCases {
+			t.Run(label, func(t *testing.T) {
+				err := validate.Struct(Example{Values: tc.Values})
+				if tc.WantErr {
+					assert.NotNil(t, err)
+				} else {
+					assert.Nil(t, err)
+				}
+			})
+		}
+	})
+
 	t.Run("ptr", func(t *testing.T) {
 		type Example struct {
 			Value *ID `validate:"frn=parent"`

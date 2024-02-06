@@ -12,23 +12,34 @@ var re = regexp.MustCompile(`^([^/#]+)?(/)?([^/#]+)?(#)?([^#]+)?$`)
 
 func RegisterValidation(validate *validator.Validate) {
 	fn := func(fl validator.FieldLevel) bool {
-		var id ID
+		var ids []ID
 		switch v := fl.Field().Interface().(type) {
 		case ID:
-			id = v
+			ids = append(ids, v)
+		case []ID:
+			ids = append(ids, v...)
+		case IDSet:
+			ids = append(ids, v...)
 		case *ID:
 			if v == nil {
 				return true
 			}
-			id = *v
+			ids = append(ids, *v)
 		default:
 			return true
 		}
-		if id == "" {
+		if len(ids) == 0 {
 			return true
 		}
 
-		return isValidID(id, fl.Param())
+		param := fl.Param()
+		for _, id := range ids {
+			if !isValidID(id, param) {
+				return false
+			}
+		}
+
+		return true
 	}
 
 	err := validate.RegisterValidation("frn", fn, true)
