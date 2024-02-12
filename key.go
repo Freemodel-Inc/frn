@@ -245,6 +245,21 @@ func (id ID) Service() Service {
 	return Service(partString)
 }
 
+// Shape returns the shape of the id e.g. frm:crm:project:1234 => project, frm:crm:entity:1:card_tx:2/fund_request/3 => entity/card_tx#fund_request
+func (id ID) Shape() string {
+	buf := bytes.NewBuffer(nil)
+	buf.WriteString(id.Type().String())
+	if id.HasChild() {
+		buf.WriteString("/")
+		buf.WriteString(id.Child().Type().String())
+	}
+	if head, _, ok := id.Path(); ok {
+		buf.WriteString("#")
+		buf.WriteString(head)
+	}
+	return buf.String()
+}
+
 func (id ID) String() string {
 	return string(id)
 }

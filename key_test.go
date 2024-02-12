@@ -474,3 +474,38 @@ func TestIDSet_Trim(t *testing.T) {
 	got := idSet.Trim()
 	assert.Equal(t, IDSet{"a", "b", "c"}, got)
 }
+
+func TestID_Shape(t *testing.T) {
+	testCases := map[string]struct {
+		ID   ID
+		Want string
+	}{
+		"empty": {
+			ID:   "",
+			Want: "",
+		},
+		"parent": {
+			ID:   "fm:crm:project:1",
+			Want: "project",
+		},
+		"parent child": {
+			ID:   "fm:crm:project:1:contract:2",
+			Want: "project/contract",
+		},
+		"parent child tertiary": {
+			ID:   "fm:crm:entity:1:card_tx:2/fund_request/2",
+			Want: "entity/card_tx#fund_request",
+		},
+		"parent tertiary": {
+			ID:   "fm:crm:project:1/approval/2",
+			Want: "project#approval",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			got := tc.ID.Shape()
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}
