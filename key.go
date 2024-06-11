@@ -304,6 +304,14 @@ func (id ID) WithPath(head string, tail ...string) ID {
 	return ID(buf.String())
 }
 
+func (id ID) WithPathStringer(head fmt.Stringer, tail ...fmt.Stringer) ID {
+	var ss []string
+	for _, t := range tail {
+		ss = append(ss, t.String())
+	}
+	return id.WithPath(head.String(), ss...)
+}
+
 type IDMap map[ID]struct{}
 
 func (vv IDMap) Slice() IDSet {
