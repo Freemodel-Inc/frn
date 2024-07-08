@@ -1,8 +1,6 @@
 package frn
 
 import (
-	"encoding/json"
-	"os"
 	"regexp"
 	"slices"
 )
@@ -11,7 +9,7 @@ var reShape = regexp.MustCompile(`^([a-zA-Z0-9_]+)(/([a-zA-Z0-9_]+))?(#([a-zA-Z0
 
 func DeriveViaShape(ns Namespace, potentialParentID ID, shape []string) (ID, bool) {
 	have := potentialParentID.ShapeSlice()
-	want := ParentSlice(shape)
+	want := ParentShape(shape)
 	if !slices.Equal(have, want) {
 		return "", false // id cannot be a parent of shape
 	}
@@ -32,13 +30,11 @@ func DeriveViaShape(ns Namespace, potentialParentID ID, shape []string) (ID, boo
 	return "", false
 }
 
-func ParentSlice(shape []string) []string {
+func ParentShape(shape []string) []string {
 	parent := make([]string, 0, len(shape))
 	parent = append(parent, shape...)
 
 	if len(shape) == 3 {
-		encoder := json.NewEncoder(os.Stdout)
-		encoder.SetIndent("", "  ")
 		for i := 2; i >= 0; i-- {
 			if parent[i] != "" {
 				parent[i] = ""

@@ -66,7 +66,7 @@ func TestParentShape(t *testing.T) {
 
 	for label, tc := range testCases {
 		t.Run(label, func(t *testing.T) {
-			got := ParentSlice(ShapeSlice(tc.Shape))
+			got := ParentShape(ShapeSlice(tc.Shape))
 			assert.Equal(t, tc.Want, got)
 		})
 	}
