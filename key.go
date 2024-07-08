@@ -260,6 +260,19 @@ func (id ID) Shape() string {
 	return buf.String()
 }
 
+// ShapeSlice returns the shape as a slice with 3 elements e.g. project/contract -> ["project", "contract", ""]
+func (id ID) ShapeSlice() []string {
+	shape := [3]string{}
+	shape[0] = id.Type().String()
+	if id.HasChild() {
+		shape[1] = id.Child().Type().String()
+	}
+	if head, _, ok := id.Path(); ok {
+		shape[2] = head
+	}
+	return shape[:]
+}
+
 func (id ID) String() string {
 	return string(id)
 }
