@@ -7,7 +7,8 @@ import (
 
 var reShape = regexp.MustCompile(`^([a-zA-Z0-9_]+)(/([a-zA-Z0-9_]+))?(#([a-zA-Z0-9_]+))?`)
 
-func DeriveViaShape(ns Namespace, potentialParentID ID, shape []string) (ID, bool) {
+// SampleViaShape generates a sample id in the shape requested using the potential parent id as a base (if necessary)
+func SampleViaShape(ns Namespace, potentialParentID ID, shape []string) (ID, bool) {
 	have := potentialParentID.ShapeSlice()
 	want := ParentShape(shape)
 	if !slices.Equal(have, want) {
@@ -30,6 +31,7 @@ func DeriveViaShape(ns Namespace, potentialParentID ID, shape []string) (ID, boo
 	return "", false
 }
 
+// ParentShape returns the logical parent shape for the given id
 func ParentShape(shape []string) []string {
 	parent := make([]string, 0, len(shape))
 	parent = append(parent, shape...)

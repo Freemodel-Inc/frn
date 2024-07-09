@@ -72,7 +72,7 @@ func TestParentShape(t *testing.T) {
 	}
 }
 
-func TestDeriveViaShape(t *testing.T) {
+func TestSampleViaShape(t *testing.T) {
 	testCases := map[string]struct {
 		ID     ID
 		Shape  string
@@ -112,7 +112,7 @@ func TestDeriveViaShape(t *testing.T) {
 	ns := NewNamespace("dev", ServiceCRM)
 	for label, tc := range testCases {
 		t.Run(label, func(t *testing.T) {
-			got, ok := DeriveViaShape(ns, tc.ID, ShapeSlice(tc.Shape))
+			got, ok := SampleViaShape(ns, tc.ID, ShapeSlice(tc.Shape))
 			if !tc.WantOk {
 				assert.False(t, ok)
 				return
