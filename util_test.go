@@ -112,7 +112,7 @@ func TestSampleViaShape(t *testing.T) {
 	ns := NewNamespace("dev", ServiceCRM)
 	for label, tc := range testCases {
 		t.Run(label, func(t *testing.T) {
-			got, ok := SampleViaShape(ns, tc.ID, ShapeSlice(tc.Shape))
+			got, ok := SampleViaShape(ns, tc.ID, tc.Shape)
 			if !tc.WantOk {
 				assert.False(t, ok)
 				return

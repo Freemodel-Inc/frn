@@ -8,7 +8,12 @@ import (
 var reShape = regexp.MustCompile(`^([a-zA-Z0-9_]+)(/([a-zA-Z0-9_]+))?(#([a-zA-Z0-9_]+))?`)
 
 // SampleViaShape generates a sample id in the shape requested using the potential parent id as a base (if necessary)
-func SampleViaShape(ns Namespace, potentialParentID ID, shape []string) (ID, bool) {
+func SampleViaShape(ns Namespace, potentialParentID ID, s string) (ID, bool) {
+	shape := ShapeSlice(s)
+	return SampleViaShapeSlice(ns, potentialParentID, shape)
+}
+
+func SampleViaShapeSlice(ns Namespace, potentialParentID ID, shape []string) (ID, bool) {
 	have := potentialParentID.ShapeSlice()
 	want := ParentShape(shape)
 	if !slices.Equal(have, want) {
