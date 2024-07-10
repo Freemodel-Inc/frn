@@ -3,9 +3,16 @@ package frn
 import (
 	"regexp"
 	"slices"
+
+	"github.com/segmentio/ksuid"
 )
 
 var reShape = regexp.MustCompile(`^([a-zA-Z0-9_]+)(/([a-zA-Z0-9_]+))?(#([a-zA-Z0-9_]+))?`)
+
+// NewValue generates a new value for an id
+func NewValue() string {
+	return ksuid.New().String()
+}
 
 // SampleViaShape generates a sample id in the shape requested using the potential parent id as a base (if necessary)
 func SampleViaShape(ns Namespace, potentialParentID ID, s string) (ID, bool) {
