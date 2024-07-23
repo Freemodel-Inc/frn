@@ -60,6 +60,12 @@ func ParentShape(shape []string) []string {
 	return parent
 }
 
+// ParentShapeString same as ParentShape, but for strings
+func ParentShapeString(shape string) string {
+	got := ParentShape(ShapeSlice(shape))
+	return ShapeSliceValue(got)
+}
+
 // ShapeSlice takes a shape and returns a slice of 3 elements, one for each part (primary, secondary, and tertiary)
 func ShapeSlice(shape string) []string {
 	ss := [3]string{}
