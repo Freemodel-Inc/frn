@@ -122,3 +122,42 @@ func TestSampleViaShape(t *testing.T) {
 		})
 	}
 }
+
+func TestShapeSliceValue(t *testing.T) {
+	testCases := map[string]struct {
+		Slice []string
+		Want  string
+	}{
+		"all": {
+			Slice: []string{"project", "contract", "work_item"},
+			Want:  "project/contract#work_item",
+		},
+		"parent child": {
+			Slice: []string{"project", "contract", ""},
+			Want:  "project/contract",
+		},
+		"parent tertiary": {
+			Slice: []string{"project", "", "work_item"},
+			Want:  "project#work_item",
+		},
+		"parent": {
+			Slice: []string{"project", "", ""},
+			Want:  "project",
+		},
+		"too long": {
+			Slice: []string{"1", "2", "3", "4"},
+			Want:  "",
+		},
+		"too short": {
+			Slice: []string{"1", "2"},
+			Want:  "",
+		},
+	}
+
+	for label, tc := range testCases {
+		t.Run(label, func(t *testing.T) {
+			got := ShapeSliceValue(tc.Slice)
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}

@@ -70,3 +70,28 @@ func ShapeSlice(shape string) []string {
 	}
 	return ss[:]
 }
+
+// ShapeSliceValue transforms a shape slice back into a string
+func ShapeSliceValue(shapeSlice []string) string {
+	if len(shapeSlice) != 3 {
+		return ""
+	}
+
+	var (
+		parent   = shapeSlice[0]
+		child    = shapeSlice[1]
+		tertiary = shapeSlice[2]
+	)
+	switch {
+	case parent != "" && child != "" && tertiary != "":
+		return parent + "/" + child + "#" + tertiary
+	case parent != "" && child != "":
+		return parent + "/" + child
+	case parent != "" && tertiary != "":
+		return parent + "#" + tertiary
+	case parent != "":
+		return parent
+	default:
+		return ""
+	}
+}
