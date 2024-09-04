@@ -34,3 +34,26 @@ func TestKeySet_MarshalDynamoDBAttributeValue(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, want, got)
 }
+
+func TestNewKeySet(t *testing.T) {
+	tests := map[string]struct {
+		Input []string
+		Want  KeySet
+	}{
+		"empty strings": {
+			Input: []string{"", "", ""},
+			Want:  nil,
+		},
+		"strip empty strings": {
+			Input: []string{"a", "b", ""},
+			Want:  KeySet{"a", "b"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := NewKeySet(tc.Input...)
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}

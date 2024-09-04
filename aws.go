@@ -35,6 +35,10 @@ func NewKeySet(ss ...string) KeySet {
 		kk   KeySet
 	)
 	for _, k := range ss {
+		if k == "" {
+			continue // ignore whitespace
+		}
+
 		if _, ok := seen[k]; ok {
 			continue
 		}
