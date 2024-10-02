@@ -403,3 +403,12 @@ func Ptr(id ID) *ID {
 	}
 	return &id
 }
+
+// WithPath provides a syntactic sugar wrapper around WithPath that's more akin to how it's used in practice
+func WithPath[T string | int64 | int32 | int](id ID, head Type, tail ...T) ID {
+	var ss []string
+	for _, t := range tail {
+		ss = append(ss, fmt.Sprintf("%v", t))
+	}
+	return id.WithPath(head.String(), ss...)
+}
