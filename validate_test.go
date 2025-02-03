@@ -453,6 +453,11 @@ func TestValidate(t *testing.T) {
 			Pattern: "#account",
 			WantErr: false,
 		},
+		"path only with sub path": {
+			Value:   "fm:dev:project:123/account/456/blah/789",
+			Pattern: "#account",
+			WantErr: false,
+		},
 		"path only - no child": {
 			Value:   "fm:dev:project:123/account",
 			Pattern: "#account",
