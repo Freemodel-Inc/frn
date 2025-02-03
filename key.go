@@ -294,10 +294,6 @@ func (id ID) WithChild(child ID) ID {
 // currently only supports two levels of nesting e.g. a or a/b, but not a/b/c
 // WithPath replaces any existing path values
 func (id ID) WithPath(head string, tail ...string) ID {
-	if len(tail) > 1 {
-		panic(fmt.Errorf("WithPath supports at most one tail value"))
-	}
-
 	s := string(id)
 	if index := strings.Index(s, pathSep); index != -1 {
 		s = s[:index]

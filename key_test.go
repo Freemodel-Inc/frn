@@ -402,44 +402,56 @@ func TestID_WithPath(t *testing.T) {
 	testCases := map[string]struct {
 		ID   ID
 		Head string
-		Tail string
+		Tail []string
 		Want ID
 	}{
 		"parent": {
 			ID:   "fm:crm:project:1",
 			Head: "key",
-			Tail: "value",
+			Tail: []string{"value"},
 			Want: "fm:crm:project:1/key/value",
+		},
+		"parent (multiple tails": {
+			ID:   "fm:crm:project:1",
+			Head: "key",
+			Tail: []string{"value", "foo", "bar"},
+			Want: "fm:crm:project:1/key/value/foo/bar",
 		},
 		"parent with no path value": {
 			ID:   "fm:crm:project:1",
 			Head: "key",
-			Tail: "",
+			Tail: []string{""},
 			Want: "fm:crm:project:1/key",
 		},
 		"parent replace": {
 			ID:   "fm:crm:project:1/foo/bar",
 			Head: "key",
-			Tail: "value",
+			Tail: []string{"value"},
 			Want: "fm:crm:project:1/key/value",
 		},
 		"child": {
 			ID:   "fm:crm:project:1:contract:2",
 			Head: "key",
-			Tail: "value",
+			Tail: []string{"value"},
 			Want: "fm:crm:project:1:contract:2/key/value",
+		},
+		"child with multiple tails": {
+			ID:   "fm:crm:project:1:contract:2",
+			Head: "key",
+			Tail: []string{"value", "a", "b"},
+			Want: "fm:crm:project:1:contract:2/key/value/a/b",
 		},
 		"child replace": {
 			ID:   "fm:crm:project:1:contract:2/foo/bar",
 			Head: "key",
-			Tail: "value",
+			Tail: []string{"value"},
 			Want: "fm:crm:project:1:contract:2/key/value",
 		},
 	}
 
 	for label, tc := range testCases {
 		t.Run(label, func(t *testing.T) {
-			got := tc.ID.WithPath(tc.Head, tc.Tail)
+			got := tc.ID.WithPath(tc.Head, tc.Tail...)
 			assert.Equal(t, tc.Want, got)
 		})
 	}
