@@ -372,6 +372,7 @@ func (s Service) String() string {
 }
 
 const (
+	ServiceAgentDB    Service = "adb"
 	ServiceCRM        Service = "crm"
 	ServiceFinance    Service = "fin"
 	ServiceOnboarding Service = "onboarding"
