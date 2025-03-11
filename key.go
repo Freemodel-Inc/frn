@@ -3,6 +3,8 @@ package frn
 import (
 	"bytes"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"regexp"
 	"strings"
 
@@ -334,6 +336,9 @@ func (vv IDMap) Slice() IDSet {
 type IDSet []ID
 
 // Contains returns true if id provided part of set
+//
+//goland:noinspection GoMixedReceiverTy
+//goland:noinspection GoMixedReceiverTypes
 func (vv IDSet) Contains(want ID) bool {
 	for _, v := range vv {
 		if v == want {
@@ -343,7 +348,31 @@ func (vv IDSet) Contains(want ID) bool {
 	return false
 }
 
+//goland:noinspection GoMixedReceiverTypes
+func (vv IDSet) MarshalDynamoDBAttributeValue(item *dynamodb.AttributeValue) error {
+	if len(vv) == 0 {
+		item.NULL = aws.Bool(true)
+		return nil
+	}
+
+	var ss []*string
+	for _, v := range vv {
+		if v == "" {
+			continue
+		}
+		ss = append(ss, aws.String(v.String()))
+	}
+
+	item.SS = ss
+
+	return nil
+}
+
+nk ids removed
+//
+//goland:noinspection GoMixedReceive
 // Trim returns a new IDSet with the blank ids removed
+//goland:noinspection GoMixedReceiverTypes
 func (vv IDSet) Trim() IDSet {
 	var idSet IDSet
 	for _, v := range vv {
@@ -355,6 +384,23 @@ func (vv IDSet) Trim() IDSet {
 	return idSet
 }
 
+//goland:noinspection GoMixedReceiverTypes
+func (vv *IDSet) UnmarshalDynamoDBAttributeValue(item *dynamodb.AttributeValue) error {
+	if aws.BoolValue(item.NULL) || item.SS == nil {
+		return nil
+	}
+
+	var set IDSet
+	for _, s := range item.SS {
+		set = append(set, ID(aws.StringValue(s)))
+	}
+
+	*vv = set
+
+	return nil
+}
+
+//goland:noinspection GoMixedReceiverTypes
 func (vv IDSet) Where(fn func(ID) bool) IDSet {
 	var results IDSet
 	for _, v := range vv {

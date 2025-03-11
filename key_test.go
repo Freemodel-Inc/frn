@@ -1,6 +1,7 @@
 package frn
 
 import (
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"testing"
 
 	"github.com/segmentio/ksuid"
@@ -517,6 +518,42 @@ func TestID_Shape(t *testing.T) {
 	for label, tc := range testCases {
 		t.Run(label, func(t *testing.T) {
 			got := tc.ID.Shape()
+			assert.Equal(t, tc.Want, got)
+		})
+	}
+}
+
+func TestIDSet_MarshalDynamoDBAttributeValue(t *testing.T) {
+	tests := map[string]struct {
+		Set  IDSet
+		Want IDSet
+	}{
+		"ok": {
+			Set:  IDSet{"a", "b", "c"},
+			Want: IDSet{"a", "b", "c"},
+		},
+		"nil": {
+			Set:  nil,
+			Want: nil,
+		},
+		"empty": {
+			Set:  IDSet{},
+			Want: nil,
+		},
+		"removes empty strings": {
+			Set:  IDSet{""},
+			Want: nil,
+		},
+	}
+
+	for label, tc := range tests {
+		t.Run(label, func(t *testing.T) {
+			item, err := dynamodbattribute.Marshal(tc.Set)
+			assert.NoError(t, err)
+
+			var got IDSet
+			err = dynamodbattribute.Unmarshal(item, &got)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.Want, got)
 		})
 	}
