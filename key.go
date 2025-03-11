@@ -368,10 +368,9 @@ func (vv IDSet) MarshalDynamoDBAttributeValue(item *dynamodb.AttributeValue) err
 	return nil
 }
 
-nk ids removed
+// Trim returns a new IDSet with the blank ids removed
 //
 //goland:noinspection GoMixedReceive
-// Trim returns a new IDSet with the blank ids removed
 //goland:noinspection GoMixedReceiverTypes
 func (vv IDSet) Trim() IDSet {
 	var idSet IDSet
