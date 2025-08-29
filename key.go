@@ -3,10 +3,11 @@ package frn
 import (
 	"bytes"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"regexp"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 
 	"github.com/segmentio/ksuid"
 )
@@ -421,6 +422,7 @@ const (
 	ServiceCRM        Service = "crm"
 	ServiceFinance    Service = "fin"
 	ServiceOnboarding Service = "onboarding"
+	ServicePOC        Service = "poc"
 	ServiceSystem     Service = "system"
 )
 
