@@ -423,6 +423,7 @@ const (
 	ServiceFinance    Service = "fin"
 	ServiceOnboarding Service = "onboarding"
 	ServicePOC        Service = "poc"
+	ServiceRemie      Service = "remie"
 	ServiceSystem     Service = "system"
 )
 
