@@ -424,6 +424,7 @@ const (
 	ServiceOnboarding Service = "onboarding"
 	ServicePOC        Service = "poc"
 	ServiceRemie      Service = "remie"
+	ServiceRenie      Service = "renie"
 	ServiceSystem     Service = "system"
 )
 
