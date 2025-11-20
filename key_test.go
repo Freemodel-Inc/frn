@@ -1,8 +1,9 @@
 package frn
 
 import (
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"testing"
+
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 
 	"github.com/segmentio/ksuid"
 	"github.com/tj/assert"
@@ -266,6 +267,10 @@ func TestID_IsValid(t *testing.T) {
 			ID:      "namespace:service:type:value:sub-type:s",
 			IsValid: true,
 		},
+		"child multi": {
+			ID:      "namespace:service:type:value:second-type:second-value:third-type:third-value",
+			IsValid: false,
+		},
 	}
 
 	for label, tc := range testCases {
@@ -512,6 +517,10 @@ func TestID_Shape(t *testing.T) {
 		"parent tertiary": {
 			ID:   "fm:crm:project:1/approval/2",
 			Want: "project#approval",
+		},
+		"parent multiple child": {
+			ID:   "fm:crm:project:1:contract:2:approval:4",
+			Want: "project/contract", // Note: only first child is considered
 		},
 	}
 

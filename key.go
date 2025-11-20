@@ -248,7 +248,8 @@ func (id ID) Service() Service {
 	return Service(partString)
 }
 
-// Shape returns the shape of the id e.g. frm:crm:project:1234 => project, frm:crm:entity:1:card_tx:2/fund_request/3 => entity/card_tx#fund_request
+// Shape returns the shape of the id e.g., frm:crm:project:1234 => project, frm:crm:entity:1:card_tx:2/fund_request/3 => entity/card_tx#fund_request
+// Note: only first child is included in shape if multiple children e.g., frm:crm:project:123:contract:456:approval:789 => project/contract
 func (id ID) Shape() string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString(id.Type().String())
